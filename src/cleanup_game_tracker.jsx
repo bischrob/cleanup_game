@@ -18,20 +18,31 @@ export default function CleanupGameTracker() {
   const [sadEffect, setSadEffect] = useState(null);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("cleanupGame") || "{}");
-    if (saved.weekStart === getCurrentWeek()) {
-      setParentScore(saved.parentScore || 0);
-      setKidScore(saved.kidScore || 0);
-    } else {
-      resetScores();
-    }
+    fetch("/cleanup/score.php")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.weekStart === getCurrentWeek()) {
+          setParentScore(data.parentScore || 0);
+          setKidScore(data.kidScore || 0);
+          setWeekStart(data.weekStart);
+        } else {
+          resetScores();
+        }
+      })
+      .catch((err) => console.error("Failed to fetch scores:", err));
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      "cleanupGame",
-      JSON.stringify({ weekStart, parentScore, kidScore })
-    );
+    const data = {
+      parentScore,
+      kidScore,
+      weekStart,
+    };
+    fetch("/cleanup/score.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).catch((err) => console.error("Failed to save scores:", err));
   }, [parentScore, kidScore, weekStart]);
 
   const triggerSadEffect = (type) => {
@@ -42,12 +53,14 @@ export default function CleanupGameTracker() {
   const resetScores = () => {
     setParentScore(0);
     setKidScore(0);
-    setWeekStart(getCurrentWeek());
+    const currentWeek = getCurrentWeek();
+    setWeekStart(currentWeek);
   };
 
   return (
     <div className="game-container">
       <h1 className="title">Cleanup Game</h1>
+      <p className="week">Week of: {weekStart}</p>
 
       <AnimatePresence>
         {sadEffect && (
