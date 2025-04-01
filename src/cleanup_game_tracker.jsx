@@ -18,7 +18,7 @@ export default function CleanupGameTracker() {
   const [sadEffect, setSadEffect] = useState(null);
 
   useEffect(() => {
-    fetch("./score.php")
+    fetch("../score.php")
       .then((res) => res.json())
       .then((data) => {
         if (data.weekStart === getCurrentWeek()) {
@@ -41,7 +41,7 @@ export default function CleanupGameTracker() {
       weekStart,
     };
   
-    fetch("./score.php", {
+    fetch("../score.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -131,7 +131,7 @@ export default function CleanupGameTracker() {
 const [loaded, setLoaded] = useState(false);
 
 useEffect(() => {
-  fetch("./score.php")
+  fetch("../score.php")
     .then((res) => res.json())
     .then((data) => {
       if (data.weekStart === getCurrentWeek()) {
