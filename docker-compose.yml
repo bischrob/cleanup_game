@@ -1,0 +1,11 @@
+services:
+  cleanup-api:
+    build: .
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./scores.json:/app/scores.json
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+    restart: unless-stopped
