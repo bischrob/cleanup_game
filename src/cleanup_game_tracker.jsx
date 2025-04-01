@@ -1,6 +1,6 @@
 // cleanup_game_tracker.jsx
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import "./main.css";
 
 const getCurrentWeek = () => {
@@ -15,6 +15,7 @@ export default function CleanupGameTracker() {
   const [parentScore, setParentScore] = useState(0);
   const [kidScore, setKidScore] = useState(0);
   const [weekStart, setWeekStart] = useState(getCurrentWeek());
+  const [sadEffect, setSadEffect] = useState(null);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("cleanupGame") || "{}");
@@ -33,6 +34,11 @@ export default function CleanupGameTracker() {
     );
   }, [parentScore, kidScore, weekStart]);
 
+  const triggerSadEffect = (type) => {
+    setSadEffect(type);
+    setTimeout(() => setSadEffect(null), 1500);
+  };
+
   const resetScores = () => {
     setParentScore(0);
     setKidScore(0);
@@ -42,13 +48,41 @@ export default function CleanupGameTracker() {
   return (
     <div className="game-container">
       <h1 className="title">Cleanup Game</h1>
+
+      <AnimatePresence>
+        {sadEffect && (
+          <motion.div
+            className="sad-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="sad-face"
+              initial={{ y: -50, scale: 0 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: 50, scale: 0 }}
+              transition={{ type: "spring", stiffness: 100 }}
+            >
+              😢
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="columns">
         <div className="card parent-card">
           <h2 className="label">Parents</h2>
           <motion.div layout className="score-box">
             {parentScore}
           </motion.div>
-          <button className="score-button blue" onClick={() => setParentScore(parentScore + 1)}>
+          <button
+            className="score-button blue"
+            onClick={() => {
+              setParentScore(parentScore + 1);
+              triggerSadEffect("parent");
+            }}
+          >
             Kids Left Something Out!
           </button>
         </div>
@@ -58,7 +92,13 @@ export default function CleanupGameTracker() {
           <motion.div layout className="score-box">
             {kidScore}
           </motion.div>
-          <button className="score-button green" onClick={() => setKidScore(kidScore + 1)}>
+          <button
+            className="score-button green"
+            onClick={() => {
+              setKidScore(kidScore + 1);
+              triggerSadEffect("kid");
+            }}
+          >
             Parents Left Something Out!
           </button>
         </div>
