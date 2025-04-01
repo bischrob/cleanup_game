@@ -25,10 +25,6 @@ dist/
 Thumbs.db
 ehthumbs.db
 
-# Docker
-**/Dockerfile
-.dockerignore
-docker-compose.yml
 *.localdev
 
 # Logs
