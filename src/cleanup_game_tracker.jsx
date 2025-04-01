@@ -16,9 +16,10 @@ export default function CleanupGameTracker() {
   const [kidScore, setKidScore] = useState(0);
   const [weekStart, setWeekStart] = useState(getCurrentWeek());
   const [sadEffect, setSadEffect] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch("../score.php")
+    fetch("http://localhost:8002/scores")
       .then((res) => res.json())
       .then((data) => {
         if (data.weekStart === getCurrentWeek()) {
@@ -28,26 +29,24 @@ export default function CleanupGameTracker() {
         } else {
           resetScores();
         }
+        setLoaded(true);
       })
       .catch((err) => console.error("Failed to fetch scores:", err));
   }, []);
 
   useEffect(() => {
-    if (!loaded) return;  // ❌ Don't save until scores are loaded
-  
+    if (!loaded) return;
     const data = {
       parentScore,
       kidScore,
       weekStart,
     };
-  
-    fetch("../score.php", {
+    fetch("http://localhost:8002/scores", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     }).catch((err) => console.error("Failed to save scores:", err));
   }, [parentScore, kidScore, weekStart, loaded]);
-  
 
   const triggerSadEffect = (type) => {
     setSadEffect(type);
@@ -127,21 +126,3 @@ export default function CleanupGameTracker() {
     </div>
   );
 }
-
-const [loaded, setLoaded] = useState(false);
-
-useEffect(() => {
-  fetch("../score.php")
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.weekStart === getCurrentWeek()) {
-        setParentScore(data.parentScore || 0);
-        setKidScore(data.kidScore || 0);
-        setWeekStart(data.weekStart);
-      } else {
-        resetScores();
-      }
-      setLoaded(true);  // ✅ important
-    })
-    .catch((err) => console.error("Failed to fetch scores:", err));
-}, []);
