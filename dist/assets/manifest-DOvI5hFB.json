@@ -1,0 +1,22 @@
+{
+    "name": "Cleanup Game",
+    "short_name": "Cleanup",
+    "description": "A fun way for families to track who left stuff out!",
+    "start_url": "/cleanup/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#1e3a8a",
+    "icons": [
+      {
+        "src": "/cleanup/icons/cleanup_game.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/cleanup/icons/cleanup_game2.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  

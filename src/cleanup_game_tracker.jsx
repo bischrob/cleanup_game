@@ -1,5 +1,5 @@
-// cleanup_game_tracker.jsx
 import React, { useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
 import { motion, AnimatePresence } from "framer-motion";
 import "./main.css";
 
@@ -19,7 +19,7 @@ export default function CleanupGameTracker() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch("api.formerpirates.online/scores")
+    fetch("https://api.formerpirates.online/scores")
       .then((res) => res.json())
       .then((data) => {
         if (data.weekStart === getCurrentWeek()) {
@@ -41,7 +41,7 @@ export default function CleanupGameTracker() {
       kidScore,
       weekStart,
     };
-    fetch("api.formerpirates.online/scores", {
+    fetch("https://api.formerpirates.online/scores", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -61,68 +61,79 @@ export default function CleanupGameTracker() {
   };
 
   return (
-    <div className="game-container">
-      <h1 className="title">Cleanup Game</h1>
-      <p className="week">Week of: {weekStart}</p>
+    <>
+      <Helmet>
+        <title>Cleanup Game</title>
+        <meta name="theme-color" content="#1e3a8a" />
+        <link rel="manifest" href="/cleanup/manifest.json" />
+        {/* Favicon / PWA icons scoped to /cleanup */}
+        <link rel="icon" href="/cleanup/icons/icon-192.png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="/cleanup/icons/icon-512.png" />
+      </Helmet>
 
-      <AnimatePresence>
-        {sadEffect && (
-          <motion.div
-            className="sad-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
+      <div className="game-container">
+        <h1 className="title">Cleanup Game</h1>
+        <p className="week">Week of: {weekStart}</p>
+
+        <AnimatePresence>
+          {sadEffect && (
             <motion.div
-              className="sad-face"
-              initial={{ y: -50, scale: 0 }}
-              animate={{ y: 0, scale: 1 }}
-              exit={{ y: 50, scale: 0 }}
-              transition={{ type: "spring", stiffness: 100 }}
+              className="sad-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              😢
+              <motion.div
+                className="sad-face"
+                initial={{ y: -50, scale: 0 }}
+                animate={{ y: 0, scale: 1 }}
+                exit={{ y: 50, scale: 0 }}
+                transition={{ type: "spring", stiffness: 100 }}
+              >
+                😢
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
 
-      <div className="columns">
-        <div className="card parent-card">
-          <h2 className="label">Parents</h2>
-          <motion.div layout className="score-box">
-            {parentScore}
-          </motion.div>
-          <button
-            className="score-button blue"
-            onClick={() => {
-              setParentScore(parentScore + 1);
-              triggerSadEffect("parent");
-            }}
-          >
-            Kids Left Something Out!
-          </button>
+        <div className="columns">
+          <div className="card parent-card">
+            <h2 className="label">Parents</h2>
+            <motion.div layout className="score-box">
+              {parentScore}
+            </motion.div>
+            <button
+              className="score-button blue"
+              onClick={() => {
+                setParentScore(parentScore + 1);
+                triggerSadEffect("parent");
+              }}
+            >
+              Kids Left Something Out!
+            </button>
+          </div>
+
+          <div className="card kid-card">
+            <h2 className="label">Kids</h2>
+            <motion.div layout className="score-box">
+              {kidScore}
+            </motion.div>
+            <button
+              className="score-button green"
+              onClick={() => {
+                setKidScore(kidScore + 1);
+                triggerSadEffect("kid");
+              }}
+            >
+              Parents Left Something Out!
+            </button>
+          </div>
         </div>
 
-        <div className="card kid-card">
-          <h2 className="label">Kids</h2>
-          <motion.div layout className="score-box">
-            {kidScore}
-          </motion.div>
-          <button
-            className="score-button green"
-            onClick={() => {
-              setKidScore(kidScore + 1);
-              triggerSadEffect("kid");
-            }}
-          >
-            Parents Left Something Out!
-          </button>
-        </div>
+        <button onClick={resetScores} className="reset-button">
+          Reset for New Week
+        </button>
       </div>
-
-      <button onClick={resetScores} className="reset-button">
-        Reset for New Week
-      </button>
-    </div>
+    </>
   );
 }
