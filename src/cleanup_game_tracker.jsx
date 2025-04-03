@@ -19,7 +19,7 @@ export default function CleanupGameTracker() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch("/api/scores")
+    fetch("api.formerpirates.online/scores")
       .then((res) => res.json())
       .then((data) => {
         if (data.weekStart === getCurrentWeek()) {
@@ -41,7 +41,7 @@ export default function CleanupGameTracker() {
       kidScore,
       weekStart,
     };
-    fetch("/api/scores", {
+    fetch("api.formerpirates.online/scores", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
