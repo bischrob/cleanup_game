@@ -8,8 +8,10 @@ npm run dev
 ```
 
 Build and check the production app with `npm run build` and `npm run preview`.
-The home page is `/`, and the game is `/cleanup`. The production web server must
-serve `index.html` for client routes such as `/cleanup`.
+The production app is served under `/cleanup/`. Vite uses this base for assets.
+The game uses the existing same-origin `/api/week` and `/api/scores` ledger endpoints;
+loading the page never writes scores. The production web server must serve the
+build index for `/cleanup/`.
 
 Vite copies `public/` into the build, including the manifest and icons. Dependencies
 and `dist/` are generated locally and are not committed. Run `npm audit` and

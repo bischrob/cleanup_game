@@ -8,12 +8,12 @@
     "theme_color": "#1e3a8a",
     "icons": [
       {
-        "src": "/icons/cleanup_game.png",
+        "src": "/cleanup/icons/cleanup_game.png",
         "sizes": "192x192",
         "type": "image/png"
       },
       {
-        "src": "/icons/cleanup_game2.png",
+        "src": "/cleanup/icons/cleanup_game2.png",
         "sizes": "512x512",
         "type": "image/png"
       }

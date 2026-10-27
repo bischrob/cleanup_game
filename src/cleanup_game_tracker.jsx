@@ -2,74 +2,83 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./main.css";
 
-const getCurrentWeek = () => {
-  const now = new Date();
-  const start = new Date(now);
-  start.setDate(now.getDate() - now.getDay()); // Sunday
-  start.setHours(0, 0, 0, 0);
-  return start.toISOString().split("T")[0];
-};
+async function fetchJson(url, options) {
+  const response = await fetch(url, options);
+  if (!response.ok) throw new Error(`Score service returned ${response.status}`);
+  return response.json();
+}
 
 export default function CleanupGameTracker() {
   const [parentScore, setParentScore] = useState(0);
   const [kidScore, setKidScore] = useState(0);
-  const [weekStart, setWeekStart] = useState(getCurrentWeek());
+  const [weekStart, setWeekStart] = useState('Loading…');
   const [sadEffect, setSadEffect] = useState(null);
-  const [loaded, setLoaded] = useState(false);
+  const [busy, setBusy] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadScores = async () => {
+    const [week, parents, children] = await Promise.all([
+      fetchJson('/api/week'),
+      fetchJson('/api/scores?team=parent'),
+      fetchJson('/api/scores?team=children'),
+    ]);
+    setWeekStart(week.week);
+    setParentScore(parents.total_points);
+    setKidScore(children.total_points);
+  };
 
   useEffect(() => {
-    fetch("https://api.formerpirates.online/scores")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.weekStart === getCurrentWeek()) {
-          setParentScore(data.parentScore || 0);
-          setKidScore(data.kidScore || 0);
-          setWeekStart(data.weekStart);
-        } else {
-          resetScores();
-        }
-        setLoaded(true);
-      })
-      .catch((err) => console.error("Failed to fetch scores:", err));
+    loadScores()
+      .catch(() => setError('Unable to load scores. Please reload to try again.'))
+      .finally(() => setBusy(false));
   }, []);
 
-  useEffect(() => {
-    if (!loaded) return;
-    const data = {
-      parentScore,
-      kidScore,
-      weekStart,
-    };
-    fetch("https://api.formerpirates.online/scores", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    }).catch((err) => console.error("Failed to save scores:", err));
-  }, [parentScore, kidScore, weekStart, loaded]);
-
-  const triggerSadEffect = (type) => {
-    setSadEffect(type);
-    setTimeout(() => setSadEffect(null), 1500);
+  const recordScores = async (changes, effect) => {
+    setBusy(true);
+    setError('');
+    try {
+      for (const [team, point] of changes) {
+        if (point !== 0) {
+          await fetchJson('/api/scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ team, point }),
+          });
+        }
+      }
+      if (effect) {
+        setSadEffect(effect);
+        setTimeout(() => setSadEffect(null), 1500);
+      }
+    } catch {
+      setError('Unable to save all changes. Check the scores before trying again.');
+    } finally {
+      try {
+        await loadScores();
+      } catch {
+        setError('Unable to refresh scores. Please reload before trying again.');
+      }
+      setBusy(false);
+    }
   };
 
-  const resetScores = () => {
-    setParentScore(0);
-    setKidScore(0);
-    const currentWeek = getCurrentWeek();
-    setWeekStart(currentWeek);
-  };
+  const resetScores = () => recordScores([
+    ['parent', -parentScore],
+    ['children', -kidScore],
+  ]);
 
   return (
     <>
       <title>Cleanup Game</title>
       <meta name="theme-color" content="#1e3a8a" />
-      <link rel="manifest" href="/manifest.json" />
-      <link rel="icon" href="/icons/cleanup_game.png" sizes="192x192" />
-      <link rel="apple-touch-icon" href="/icons/cleanup_game2.png" />
+      <link rel="manifest" href={`${import.meta.env.BASE_URL}manifest.json`} />
+      <link rel="icon" href={`${import.meta.env.BASE_URL}icons/cleanup_game.png`} sizes="192x192" />
+      <link rel="apple-touch-icon" href={`${import.meta.env.BASE_URL}icons/cleanup_game2.png`} />
 
       <div className="game-container">
         <h1 className="title">Cleanup Game</h1>
-        <p className="week">Week of: {weekStart}</p>
+        <p className="week">{weekStart}</p>
+        {error && <p role="alert">{error}</p>}
 
         <AnimatePresence>
           {sadEffect && (
@@ -100,10 +109,8 @@ export default function CleanupGameTracker() {
             </motion.div>
             <button
               className="score-button blue"
-              onClick={() => {
-                setParentScore(parentScore + 1);
-                triggerSadEffect("parent");
-              }}
+              disabled={busy || Boolean(error)}
+              onClick={() => recordScores([['parent', 1]], 'parent')}
             >
               Kids Left Something Out!
             </button>
@@ -116,17 +123,15 @@ export default function CleanupGameTracker() {
             </motion.div>
             <button
               className="score-button green"
-              onClick={() => {
-                setKidScore(kidScore + 1);
-                triggerSadEffect("kid");
-              }}
+              disabled={busy || Boolean(error)}
+              onClick={() => recordScores([['children', 1]], 'kid')}
             >
               Parents Left Something Out!
             </button>
           </div>
         </div>
 
-        <button onClick={resetScores} className="reset-button">
+        <button disabled={busy || Boolean(error)} onClick={resetScores} className="reset-button">
           Reset for New Week
         </button>
       </div>
