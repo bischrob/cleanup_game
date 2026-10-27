@@ -1,14 +1,18 @@
 /* cleanup_game_tracker.css */
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  width: 100%;
+}
 body {
   margin: 0;
   padding: 0;
   font-family: 'Arial', sans-serif;
   background-color: #f0f8ff;
   color: #333;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  min-height: 100vh;
   text-align: center;
 }
 
@@ -31,13 +35,14 @@ body {
 
 .columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
   width: 100%;
   max-width: 1000px;
 }
 
 .card {
+  min-width: 0;
   padding: 1.5rem;
   border-radius: 1rem;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
@@ -72,7 +77,10 @@ body {
 
 .score-button {
   width: 100%;
-  height: 60vh;
+  min-height: 10rem;
+  height: clamp(10rem, 35vh, 20rem);
+  padding: 1rem;
+  overflow-wrap: anywhere;
   font-size: 1.5rem;
   font-weight: bold;
   border: none;
@@ -132,5 +140,23 @@ body {
 
 .container {
   background-color: #404040;
-  border-radius: 15
+  border-radius: 15px;
+}
+@media (max-width: 600px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .score-box {
+    height: 6rem;
+  }
+
+  .score-button {
+    min-height: 8rem;
+    height: 8rem;
+  }
 }
