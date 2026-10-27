@@ -1,21 +1,14 @@
-// src/main.jsx
 import React from 'react';
-import { ViteSSG } from 'vite-ssg';
-import App from './App.jsx';
-import { BrowserRouter } from 'react-router-dom';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import HomePage from './HomePage.jsx';
+import CleanupGameTracker from './cleanup_game_tracker.jsx';
 
-// Export for vite-ssg
-export const createApp = ViteSSG(
-  () => (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  ),
-  // Static routes to prerender
-  {
-    routes: [
-      { path: '/', component: () => import('./HomePage.jsx') },
-      { path: '/cleanup', component: () => import('./cleanup_game_tracker.jsx') },
-    ],
-  }
+createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/cleanup" element={<CleanupGameTracker />} />
+    </Routes>
+  </BrowserRouter>,
 );

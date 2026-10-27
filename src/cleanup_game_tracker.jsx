@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Helmet } from "react-helmet";
 import { motion, AnimatePresence } from "framer-motion";
 import "./main.css";
 
@@ -62,14 +61,11 @@ export default function CleanupGameTracker() {
 
   return (
     <>
-      <Helmet>
-        <title>Cleanup Game</title>
-        <meta name="theme-color" content="#1e3a8a" />
-        <link rel="manifest" href="/cleanup/manifest.json" />
-        {/* Favicon / PWA icons scoped to /cleanup */}
-        <link rel="icon" href="/cleanup/icons/icon-192.png" sizes="192x192" />
-        <link rel="apple-touch-icon" href="/cleanup/icons/icon-512.png" />
-      </Helmet>
+      <title>Cleanup Game</title>
+      <meta name="theme-color" content="#1e3a8a" />
+      <link rel="manifest" href="/manifest.json" />
+      <link rel="icon" href="/icons/cleanup_game.png" sizes="192x192" />
+      <link rel="apple-touch-icon" href="/icons/cleanup_game2.png" />
 
       <div className="game-container">
         <h1 className="title">Cleanup Game</h1>
